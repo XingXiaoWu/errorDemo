@@ -1,52 +1,47 @@
 const sourceMap = require('source-map');
-import _ from 'lodash'
+const _ = require('lodash');
+const fs = require('fs');
+const { json } = require('express');
+
 /**
  * 
  * @param {*} url 发生错误的url,最后切割的是文件名,配上注册时数据库的url即可
  * @param {*} line 行
  * @param {*} column 列
  */
-function analyzeError(url, line, column) {
+async function analyzeError(url, line, column) {
     if (_.isEmpty(url) || line === '0' || column === '0') {
       return;
     }
     // map数据源
-    const mapSource = await this.getMapSource(url);
+    const mapSource = await getMapSource(url);
     // 判断是否为空
     if (_.isEmpty(mapSource)) {
         // 直接return
         return mapSource;
     }
     // 2.解析
-    const mapResult = await this.mapReduction(mapSource, line, column)
+    const mapResult = await mapReduction(mapSource, line, column)
     return mapResult;
 }
     
 // 获取map数据
-function getMapSource(url) {
-    // 开发环境的map地址
-    const baseMapUrl = this.app.config.userConfig.mapUrl;
+async function getMapSource(url) {
     // 1.获取url对应的map地址
     const jsName = _.split(url, '/');
     // 获取map名称
     const tmp = jsName[jsName.length - 1] + '.map';
-    const mapUrl = baseMapUrl + tmp;
+    const mapUrl = './maps/' + tmp;
     // map文件
-    const mapSource = await this.ctx.curl(mapUrl, {
-      timeout: 3000,
-    });
-    // 判断是否200
-    if (mapSource.status === 200) {
-      const result = JSON.parse(mapSource.data);
-      return result;
-    }
-    return {};
-    // const result = JSON.parse(mapSource.data);
-    // return result;
+    // const mapSource = await this.ctx.curl(mapUrl, {
+    //   timeout: 3000,
+    // });
+    const mapSource = JSON.parse(fs.readFileSync(mapUrl).toString())
+    return mapSource;
 }
     
       // map还原
-function mapReduction(mapSource, line, column) {
+async function mapReduction(mapSource, line, column) {
     const sourcesPathMap = {};
     const fileContent = JSON.stringify(mapSource);
     const fileObj = mapSource;
@@ -54,7 +49,7 @@ function mapReduction(mapSource, line, column) {
     // eslint-disable-next-line array-callback-return
     sources.map(item => {
       console.log(item);
-      sourcesPathMap[this.fixPath(item)] = item;
+      sourcesPathMap[fixPath(item)] = item;
     });
     // 解析
     const consumer = await new sourceMap.SourceMapConsumer(fileContent);
@@ -72,4 +67,8 @@ function mapReduction(mapSource, line, column) {
 }
 function fixPath(filepath) {
     return filepath.replace(/\.[\.\/]+/g, '');
+}
+
+module.exports = {
+  analyzeError
 }

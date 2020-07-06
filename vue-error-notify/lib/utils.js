@@ -62,9 +62,9 @@ function formatErrorInfo(errorInfo) {
 // 发送
 function notify(error) {
     // 判断当前环境,不是开发也不是生产,不上传
-    if (process.env.VUE_APP_ENV_CONFIG !== 'dev' && process.env.VUE_APP_ENV_CONFIG !== 'prod') {
-        return
-    }
+    // if (process.env.VUE_APP_ENV_CONFIG !== 'dev' && process.env.VUE_APP_ENV_CONFIG !== 'prod') {
+    //     return
+    // }
     // 计算堆栈
     let stack = Tracekit.computeStackTrace(error)
     let tmpStack = get(stack, ['stack', '0'])

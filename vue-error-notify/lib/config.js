@@ -1,7 +1,7 @@
 const URLS = {
-    dev : 'https://127.0.0.1/errorReceive?',
+    dev : 'http://127.0.0.1:1234/errorReceive?',
     test : '',
-    prod  : 'https://127.0.0.1/errorReceive?',
+    prod  : 'http://127.0.0.1:1234/errorReceive?',
 }
 
 let globalProjectName = ''
